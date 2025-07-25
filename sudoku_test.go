@@ -1,9 +1,37 @@
 package main_test
 
 import (
+	"reflect"
 	"sudoku"
 	"testing"
 )
+
+func TestCurrentSolutionRetrieval(t *testing.T) {
+	t.Run("return current solution", func(t *testing.T) {
+		fields := [][]int{
+			{1, 2, 3, 4},
+			{0, 0, 0, 0},
+			{2, 3},
+			{},
+		}
+		sudoku, err := main.NewSudoku(fields)
+		if err != nil {
+			t.Fatalf("error should not occur: %v", err)
+		}
+
+		got := sudoku.GetCurrentSolution()
+		want := [][]int{
+			{1, 2, 3, 4},
+			{0, 0, 0, 0},
+			{2, 3, 0, 0},
+			{0, 0, 0, 0},
+		}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Fatalf("arrays are not the same, got: %v, want: %v", got, want)
+		}
+	})
+}
 
 func TestFieldValidation(t *testing.T) {
 	t.Run("too many elements in row defined", func(t *testing.T) {

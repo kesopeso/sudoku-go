@@ -17,6 +17,22 @@ func NewSudoku(fields [][]int) (*Sudoku, error) {
 	return &Sudoku{stateTable: stateTable}, nil
 }
 
+func (s *Sudoku) GetCurrentSolution() [][]int {
+	currentSolution := make([][]int, len(s.stateTable))
+
+	for i, row := range s.stateTable {
+		currentSolution[i] = make([]int, len(row))
+		for j, v := range row {
+			if len(v) == 1 {
+				currentSolution[i][j] = v[0]
+				continue
+			}
+		}
+	}
+
+	return currentSolution
+}
+
 func getStateTable(fields [][]int) [][][]int {
 	tableSize := len(fields)
 	stateTable := make([][][]int, tableSize)
