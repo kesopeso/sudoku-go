@@ -6,34 +6,62 @@ import (
 )
 
 type Sudoku struct {
-	Fields [][]int
+	stateTable [][][]int
 }
 
 func NewSudoku(fields [][]int) (*Sudoku, error) {
 	if error := validateFields(fields); error != nil {
 		return nil, error
 	}
-	return &Sudoku{Fields: fields}, nil
+	stateTable := getStateTable(fields)
+	return &Sudoku{stateTable: stateTable}, nil
+}
+
+func getStateTable(fields [][]int) [][][]int {
+	tableSize := len(fields)
+	stateTable := make([][][]int, tableSize)
+
+	defaultCellState := make([]int, tableSize)
+	for i := range tableSize {
+		defaultCellState[i] = i + 1
+	}
+
+	for i := range tableSize {
+		stateTable[i] = make([][]int, tableSize)
+		for j := range tableSize {
+			if len(fields[i]) > j {
+				if fields[i][j] != 0 {
+					stateTable[i][j] = []int{fields[i][j]}
+					continue
+				}
+			}
+			stateTable[i][j] = make([]int, tableSize)
+			copy(stateTable[i][j], defaultCellState)
+		}
+	}
+
+	return stateTable
 }
 
 func validateFields(fields [][]int) error {
-	// validate length of fields
-	fieldsCount := len(fields)
-	squareCount := math.Sqrt(float64(fieldsCount))
-	squareCountAsInt := int(squareCount)
-	if squareCount-float64(squareCountAsInt) != 0 {
+	// check if field size 4, 9, 16, 25, 36, 49,...
+	tableSize := len(fields)
+	squareSize := math.Sqrt(float64(tableSize))
+	if _, squareSizeDecimals := math.Modf(squareSize); squareSizeDecimals != 0 {
 		return fmt.Errorf("fields array should be power of two, for instance 4, 9, 16, etc")
 	}
 
 	// validate repeating column numbers
 	columnNumbers := map[int]map[int]bool{}
+	var rowNumbers map[int]bool
+
 	for _, rV := range fields {
 		// validate repeating row numbers
-		rowNumbers := map[int]bool{}
+		rowNumbers = map[int]bool{}
 
 		// validate row length
-		if len(rV) > fieldsCount {
-			return fmt.Errorf("too many elements in a row, found: %v, max: %v", len(rV), fieldsCount)
+		if len(rV) > tableSize {
+			return fmt.Errorf("too many elements in a row, found: %v, max: %v", len(rV), tableSize)
 		}
 		for cI, cV := range rV {
 			// check if row number exists
@@ -60,8 +88,8 @@ func validateFields(fields [][]int) error {
 				return fmt.Errorf("field cannot be smaller than 0 (which represents empty field)")
 			}
 			// validate field max value
-			if cV > fieldsCount {
-				return fmt.Errorf("field cannot be bigger than %v", fieldsCount)
+			if cV > tableSize {
+				return fmt.Errorf("field cannot be bigger than %v", tableSize)
 			}
 		}
 	}
