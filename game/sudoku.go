@@ -55,8 +55,13 @@ func (s *Sudoku) GetCurrentSolution() [][]int {
 	return currentSolution
 }
 
-func (s *Sudoku) GetCellState(row int, column int) []int {
-	return s.state[row][column]
+func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, solution int, isSolved bool) {
+	potentialSolutions = s.state[row][column]
+	if len(potentialSolutions) == 1 {
+		solution = potentialSolutions[0]
+	}
+	isSolved = solution != 0
+	return
 }
 
 func initState(fields [][]int) [][][]int {
