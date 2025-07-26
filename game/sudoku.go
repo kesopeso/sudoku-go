@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"fmt"
@@ -6,21 +6,43 @@ import (
 )
 
 type Sudoku struct {
-	stateTable [][][]int
+	state [][][]int
 }
 
 func NewSudoku(fields [][]int) (*Sudoku, error) {
-	if error := validateFields(fields); error != nil {
+	if error := validateInitalFields(fields); error != nil {
 		return nil, error
 	}
-	stateTable := getStateTable(fields)
-	return &Sudoku{stateTable: stateTable}, nil
+	state := initState(fields)
+	return &Sudoku{state: state}, nil
+}
+
+func (s *Sudoku) GetSize() int {
+	return len(s.state)
+}
+
+func (s *Sudoku) GetSquareSize() int {
+	sudokuSize := s.GetSize()
+	squareSize := math.Sqrt(float64(sudokuSize))
+	return int(squareSize)
+}
+
+func (s *Sudoku) IsSolved() bool {
+	for _, r := range s.state {
+		for _, c := range r {
+			if len(c) > 1 {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 func (s *Sudoku) GetCurrentSolution() [][]int {
-	currentSolution := make([][]int, len(s.stateTable))
+	currentSolution := make([][]int, len(s.state))
 
-	for i, row := range s.stateTable {
+	for i, row := range s.state {
 		currentSolution[i] = make([]int, len(row))
 		for j, v := range row {
 			if len(v) == 1 {
@@ -33,7 +55,11 @@ func (s *Sudoku) GetCurrentSolution() [][]int {
 	return currentSolution
 }
 
-func getStateTable(fields [][]int) [][][]int {
+func (s *Sudoku) GetCellState(row int, column int) []int {
+	return s.state[row][column]
+}
+
+func initState(fields [][]int) [][][]int {
 	tableSize := len(fields)
 	stateTable := make([][][]int, tableSize)
 
@@ -59,7 +85,7 @@ func getStateTable(fields [][]int) [][][]int {
 	return stateTable
 }
 
-func validateFields(fields [][]int) error {
+func validateInitalFields(fields [][]int) error {
 	// check if field size 4, 9, 16, 25, 36, 49,...
 	tableSize := len(fields)
 	squareSize := math.Sqrt(float64(tableSize))

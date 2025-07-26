@@ -1,8 +1,8 @@
-package main_test
+package game_test
 
 import (
 	"reflect"
-	"sudoku"
+	"sudoku/game"
 	"testing"
 )
 
@@ -14,7 +14,7 @@ func TestCurrentSolutionRetrieval(t *testing.T) {
 			{2, 3},
 			{},
 		}
-		sudoku, err := main.NewSudoku(fields)
+		sudoku, err := game.NewSudoku(fields)
 		if err != nil {
 			t.Fatalf("error should not occur: %v", err)
 		}
@@ -96,7 +96,7 @@ func TestFieldValidation(t *testing.T) {
 
 func fieldValidationErrorHelper(t *testing.T, fields [][]int, expectedError string) {
 	t.Helper()
-	_, error := main.NewSudoku(fields)
+	_, error := game.NewSudoku(fields)
 	if error == nil || error.Error() != expectedError {
 		t.Fatalf("no error or bad error returned: %v", error)
 	}
@@ -104,7 +104,7 @@ func fieldValidationErrorHelper(t *testing.T, fields [][]int, expectedError stri
 
 func fieldValidationNoErrorHelper(t *testing.T, fields [][]int) {
 	t.Helper()
-	_, error := main.NewSudoku(fields)
+	_, error := game.NewSudoku(fields)
 
 	if error != nil {
 		t.Fatalf("no error expected: %v", error)

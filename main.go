@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sudoku/game"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 		{5, 3, 2, 1, 2, 2, 2, 2, 2},
 		{5, 3, 2, 1, 2, 2, 2, 2, 2},
 	}
-	sudoku, err := NewSudoku(fields)
+	sudoku, err := game.NewSudoku(fields)
 	if err != nil {
 		log.Fatal("error occured: ", err)
 	}
