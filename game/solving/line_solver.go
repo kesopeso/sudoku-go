@@ -10,6 +10,8 @@ type LineSolverOptions struct {
 	solveRow bool
 }
 
+type CellStateGetter func(offset int) (solution int, isSolved bool)
+
 func newLineSolver(options LineSolverOptions) *LineSolver {
 	return &LineSolver{options: options}
 }
@@ -23,23 +25,17 @@ func NewColumnSolver() *LineSolver {
 }
 
 func (ls *LineSolver) SolveCell(s *game.Sudoku, row int, column int) []int {
-	if ls.options.solveRow {
-		return solveRowCell(s, row, column)
-	}
-	return solveColumnCell(s, row, column)
-}
-
-func solveRowCell(s *game.Sudoku, row int, column int) []int {
 	potentialSolutions, solution, isSolved := s.GetCellState(row, column)
 	if isSolved {
 		return []int{solution}
 	}
 
-	rowSolutions := getRowSolutions(s, row, column)
+	cellOffset, cellStateGetter := getCellOffsetAndStateGetter(s, row, column, ls.options.solveRow)
+	lineSolutions := getLineSolutions(s, cellOffset, cellStateGetter)
 
 	solutions := make([]int, 0, len(potentialSolutions))
 	for _, potentialSolution := range potentialSolutions {
-		if rowSolutions[potentialSolution] {
+		if lineSolutions[potentialSolution] {
 			continue
 		}
 		solutions = append(solutions, potentialSolution)
@@ -48,57 +44,38 @@ func solveRowCell(s *game.Sudoku, row int, column int) []int {
 	return solutions
 }
 
-func solveColumnCell(s *game.Sudoku, row int, column int) []int {
-	potentialSolutions, solution, isSolved := s.GetCellState(row, column)
-	if isSolved {
-		return []int{solution}
+func getCellOffsetAndStateGetter(s *game.Sudoku, row int, column int, isRowSolver bool) (int, CellStateGetter) {
+	cell := row
+	cellStateGetter := func(offset int) (solution int, isSolved bool) {
+		_, solution, isSolved = s.GetCellState(offset, column)
+		return
 	}
 
-	rowSolutions := getColumnSolutions(s, row, column)
-
-	solutions := make([]int, 0, len(potentialSolutions))
-	for _, potentialSolution := range potentialSolutions {
-		if rowSolutions[potentialSolution] {
-			continue
+	if isRowSolver {
+		cell = column
+		cellStateGetter = func(offset int) (solution int, isSolved bool) {
+			_, solution, isSolved = s.GetCellState(row, offset)
+			return
 		}
-		solutions = append(solutions, potentialSolution)
 	}
 
-	return solutions
+	return cell, cellStateGetter
 }
 
-func getRowSolutions(s *game.Sudoku, row int, column int) map[int]bool {
+func getLineSolutions(s *game.Sudoku, cellOffset int, getCellState CellStateGetter) map[int]bool {
 	sudokuSize := s.GetSize()
-	rowSolutions := make(map[int]bool, sudokuSize)
+	lineSolutions := make(map[int]bool, sudokuSize)
 	for c := range sudokuSize {
-		if c == column {
+		if c == cellOffset {
 			// this is the field itself, so it should not be checked
 			continue
 		}
 
-		_, solution, isSolved := s.GetCellState(row, c)
+		solution, isSolved := getCellState(c)
 		if !isSolved {
 			continue
 		}
-		rowSolutions[solution] = true
+		lineSolutions[solution] = true
 	}
-	return rowSolutions
-}
-
-func getColumnSolutions(s *game.Sudoku, row int, column int) map[int]bool {
-	sudokuSize := s.GetSize()
-	columnSolutions := make(map[int]bool, sudokuSize)
-	for r := range sudokuSize {
-		if r == row {
-			// this is the field itself, so it should not be checked
-			continue
-		}
-
-		_, solution, isSolved := s.GetCellState(r, column)
-		if !isSolved {
-			continue
-		}
-		columnSolutions[solution] = true
-	}
-	return columnSolutions
+	return lineSolutions
 }
