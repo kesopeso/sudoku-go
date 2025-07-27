@@ -9,11 +9,11 @@ type Sudoku struct {
 	state [][][]int
 }
 
-func NewSudoku(fields [][]int) (*Sudoku, error) {
-	if error := validateInitalFields(fields); error != nil {
+func NewSudoku(cells [][]int) (*Sudoku, error) {
+	if error := validateInitalCells(cells); error != nil {
 		return nil, error
 	}
-	state := initState(fields)
+	state := initState(cells)
 	return &Sudoku{state: state}, nil
 }
 
@@ -64,8 +64,8 @@ func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, so
 	return
 }
 
-func initState(fields [][]int) [][][]int {
-	tableSize := len(fields)
+func initState(cells [][]int) [][][]int {
+	tableSize := len(cells)
 	stateTable := make([][][]int, tableSize)
 
 	defaultCellState := make([]int, tableSize)
@@ -76,9 +76,9 @@ func initState(fields [][]int) [][][]int {
 	for i := range tableSize {
 		stateTable[i] = make([][]int, tableSize)
 		for j := range tableSize {
-			if len(fields[i]) > j {
-				if fields[i][j] != 0 {
-					stateTable[i][j] = []int{fields[i][j]}
+			if len(cells[i]) > j {
+				if cells[i][j] != 0 {
+					stateTable[i][j] = []int{cells[i][j]}
 					continue
 				}
 			}
@@ -90,19 +90,19 @@ func initState(fields [][]int) [][][]int {
 	return stateTable
 }
 
-func validateInitalFields(fields [][]int) error {
-	// check if field size 4, 9, 16, 25, 36, 49,...
-	tableSize := len(fields)
+func validateInitalCells(cells [][]int) error {
+	// check if cells size is 4, 9, 16, 25, 36, 49,...
+	tableSize := len(cells)
 	squareSize := math.Sqrt(float64(tableSize))
 	if _, squareSizeDecimals := math.Modf(squareSize); squareSizeDecimals != 0 {
-		return fmt.Errorf("fields array should be power of two, for instance 4, 9, 16, etc")
+		return fmt.Errorf("cells array should be power of two, for instance 4, 9, 16, etc")
 	}
 
 	// validate repeating column numbers
 	columnNumbers := make(map[int]map[int]bool, tableSize)
 	var rowNumbers map[int]bool
 
-	for _, rV := range fields {
+	for _, rV := range cells {
 		// validate repeating row numbers
 		rowNumbers = make(map[int]bool, tableSize)
 
@@ -130,13 +130,13 @@ func validateInitalFields(fields [][]int) error {
 				columnNumbers[cI][cV] = true
 			}
 
-			// validate field min value
+			// validate cell min value
 			if cV < 0 {
-				return fmt.Errorf("field cannot be smaller than 0 (which represents empty field)")
+				return fmt.Errorf("cell cannot be smaller than 0 (which represents empty cell)")
 			}
-			// validate field max value
+			// validate cell max value
 			if cV > tableSize {
-				return fmt.Errorf("field cannot be bigger than %v", tableSize)
+				return fmt.Errorf("cell cannot be bigger than %v", tableSize)
 			}
 		}
 	}

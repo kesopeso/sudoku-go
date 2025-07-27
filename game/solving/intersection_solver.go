@@ -7,7 +7,7 @@ import (
 type IntersectionSolver struct {
 }
 
-type FieldPosition struct {
+type CellPosition struct {
 	Row    int
 	Column int
 }
@@ -24,17 +24,17 @@ func (is IntersectionSolver) SolveCell(s *game.Sudoku, row int, column int) []in
 
 	// this removes values that are in the same row and column
 	filteredPotentialSolutions := getFilteredPotentialSolutions(s, row, column, potentialSolutions)
-	// this gets all the fields in the same square that are not solved
-	unsolvedSquareFields := getUnsolvedSquareFields(s, row, column)
+	// this gets all the cells in the same square that are not solved
+	unsolvedSquareCells := getUnsolvedSquareCells(s, row, column)
 
 	intersectionsFound := make(map[int]int, len(filteredPotentialSolutions))
-	for _, unsolvedSquareField := range unsolvedSquareFields {
-		intersectionSolutions := getIntersectionSolutions(s, unsolvedSquareField.Row, unsolvedSquareField.Column)
+	for _, unsolvedSquareCell := range unsolvedSquareCells {
+		intersectionSolutions := getIntersectionSolutions(s, unsolvedSquareCell.Row, unsolvedSquareCell.Column)
 		for _, potentialSolution := range filteredPotentialSolutions {
 			if intersectionSolutions[potentialSolution] {
 				intersectionsFound[potentialSolution]++
 			}
-			if intersectionsFound[potentialSolution] == len(unsolvedSquareFields) {
+			if intersectionsFound[potentialSolution] == len(unsolvedSquareCells) {
 				return []int{potentialSolution}
 			}
 		}
@@ -75,8 +75,8 @@ func getIntersectionSolutions(s *game.Sudoku, row int, column int) map[int]bool 
 	return intersectionSolutions
 }
 
-func getUnsolvedSquareFields(s *game.Sudoku, row int, column int) []FieldPosition {
-	unsolvedSquareFields := make([]FieldPosition, s.GetSize())
+func getUnsolvedSquareCells(s *game.Sudoku, row int, column int) []CellPosition {
+	unsolvedSquareCells := make([]CellPosition, s.GetSize())
 	startRow, endRow, startColumn, endColumn := getSquare(s, row, column)
 	for r := startRow; r <= endRow; r++ {
 		for c := startColumn; c <= endColumn; c++ {
@@ -87,8 +87,8 @@ func getUnsolvedSquareFields(s *game.Sudoku, row int, column int) []FieldPositio
 			if isSolved {
 				continue
 			}
-			unsolvedSquareFields = append(unsolvedSquareFields, FieldPosition{Row: r, Column: c})
+			unsolvedSquareCells = append(unsolvedSquareCells, CellPosition{Row: r, Column: c})
 		}
 	}
-	return unsolvedSquareFields
+	return unsolvedSquareCells
 }

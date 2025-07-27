@@ -67,7 +67,7 @@ func getLineSolutions(s *game.Sudoku, cellOffset int, getCellState CellStateGett
 	lineSolutions := make(map[int]bool, sudokuSize)
 	for c := range sudokuSize {
 		if c == cellOffset {
-			// this is the field itself, so it should not be checked
+			// this is the cell itself, so it should not be checked
 			continue
 		}
 

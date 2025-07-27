@@ -36,7 +36,7 @@ func getSquareSolutions(s *game.Sudoku, row int, column int, startRow int, endRo
 	squareSolutions := make(map[int]bool, s.GetSize())
 	for r := startRow; r <= endRow; r++ {
 		for c := startColumn; c <= endColumn; c++ {
-			// this is the field itself, so it should not be checked
+			// this is the cell itself, so it should not be checked
 			if r == row && c == column {
 				continue
 			}

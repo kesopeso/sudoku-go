@@ -30,70 +30,70 @@ func TestCurrentSolutionRetrieval(t *testing.T) {
 	})
 }
 
-func TestFieldValidation(t *testing.T) {
+func TestCellValidation(t *testing.T) {
 	t.Run("too many elements in row defined", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 3, 4, 5},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		fieldValidationErrorHelper(t, fields, "too few/many elements in a row, found: 5, expected: 4")
+		cellValidationErrorHelper(t, cells, "too few/many elements in a row, found: 5, expected: 4")
 	})
 
 	t.Run("incorrect number of rows defined", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		fieldValidationErrorHelper(t, fields, "fields array should be power of two, for instance 4, 9, 16, etc")
+		cellValidationErrorHelper(t, cells, "cells array should be power of two, for instance 4, 9, 16, etc")
 	})
 
 	t.Run("repeating numbers found in a row", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 4, 4},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		fieldValidationErrorHelper(t, fields, "row has repeating numbers")
+		cellValidationErrorHelper(t, cells, "row has repeating numbers")
 	})
 
 	t.Run("repeating numbers found in a column", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 			{0, 0, 3, 0},
 		}
-		fieldValidationErrorHelper(t, fields, "column has repeating numbers")
+		cellValidationErrorHelper(t, cells, "column has repeating numbers")
 	})
 
 	t.Run("no repeating numbers in a row, ignore zeros", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
 			{2, 3, 0, 0},
 			{0, 0, 0, 0},
 		}
-		testutil.InitSudoku(t, fields)
+		testutil.InitSudoku(t, cells)
 	})
 
 	t.Run("no repeating numbers in a column, ignore zeros", func(t *testing.T) {
-		fields := [][]int{
+		cells := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
 			{3, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		testutil.InitSudoku(t, fields)
+		testutil.InitSudoku(t, cells)
 	})
 }
 
-func fieldValidationErrorHelper(t *testing.T, fields [][]int, expectedError string) {
+func cellValidationErrorHelper(t *testing.T, cells [][]int, expectedError string) {
 	t.Helper()
-	_, error := game.NewSudoku(fields)
+	_, error := game.NewSudoku(cells)
 	if error == nil || error.Error() != expectedError {
 		t.Fatalf("no error or bad error returned: %v", error)
 	}
