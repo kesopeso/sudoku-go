@@ -31,22 +31,3 @@ func (sudoku *Solver) Solve(s *game.Sudoku) {
 		// once is solved break
 	}
 }
-
-// func (sudoku *Solver) getSolutionsIntersection(solutions [][]int) []int {
-// 	solutionsCount := len(solutions)
-// 	solutionsMap := make(map[int]int)
-//
-// 	for _, s := range solutions {
-// 		for _, v := range s {
-// 			solutionsMap[v]++
-// 		}
-// 	}
-//
-// 	solutionsIntersection := []int{}
-// 	for k, v := range solutionsMap {
-// 		if v == solutionsCount {
-// 			solutionsIntersection = append(solutionsIntersection, k)
-// 		}
-// 	}
-// 	return solutionsIntersection
-// }

@@ -26,14 +26,14 @@ func TestSolveCellWithIntersectionSolver(t *testing.T) {
 		}
 
 		interactionSolver := solving.NewIntersectionSolver()
-		got := interactionSolver.SolveCell(sudoku, 0, 4)
-		want := []int{2, 7}
+		got := interactionSolver.SolveCell(sudoku, 7, 7)
+		want := []int{8}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("solutions don't match, got: %v, want: %v", got, want)
 		}
 
-		got = interactionSolver.SolveCell(sudoku, 2, 4)
-		want = []int{7}
+		got = interactionSolver.SolveCell(sudoku, 5, 0)
+		want = []int{8}
 		if !reflect.DeepEqual(got, want) {
 			t.Fatalf("solutions don't match, got: %v, want: %v", got, want)
 		}

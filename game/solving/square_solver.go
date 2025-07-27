@@ -50,11 +50,11 @@ func getSquareSolutions(s *game.Sudoku, row int, column int, startRow int, endRo
 	return squareSolutions
 }
 
-func getSquare(s *game.Sudoku, row int, column int) (int, int, int, int) {
+func getSquare(s *game.Sudoku, row int, column int) (startRow int, endRow int, startColumn int, endColumn int) {
 	squareSize := s.GetSquareSize()
-	startRow := int(float64(row) - math.Mod(float64(row), float64(squareSize)))
-	endRow := startRow + squareSize - 1
-	startColumn := int(float64(column) - math.Mod(float64(column), float64(squareSize)))
-	endColumn := startColumn + squareSize - 1
-	return startRow, endRow, startColumn, endColumn
+	startRow = int(float64(row) - math.Mod(float64(row), float64(squareSize)))
+	endRow = startRow + squareSize - 1
+	startColumn = int(float64(column) - math.Mod(float64(column), float64(squareSize)))
+	endColumn = startColumn + squareSize - 1
+	return
 }
