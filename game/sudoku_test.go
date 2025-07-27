@@ -1,9 +1,9 @@
 package game_test
 
 import (
+	"github.com/kesopeso/sudoku-go/game"
+	"github.com/kesopeso/sudoku-go/game/testutil"
 	"reflect"
-	"sudoku/game"
-	"sudoku/game/testutil"
 	"testing"
 )
 

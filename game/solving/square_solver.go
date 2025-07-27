@@ -1,8 +1,8 @@
 package solving
 
 import (
+	"github.com/kesopeso/sudoku-go/game"
 	"math"
-	"sudoku/game"
 )
 
 type SquareSolver struct {

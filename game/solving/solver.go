@@ -1,6 +1,6 @@
 package solving
 
-import "sudoku/game"
+import "github.com/kesopeso/sudoku-go/game"
 
 // "math"
 

@@ -1,9 +1,9 @@
 package solving_test
 
 import (
+	"github.com/kesopeso/sudoku-go/game/solving"
+	"github.com/kesopeso/sudoku-go/game/testutil"
 	"reflect"
-	"sudoku/game/solving"
-	"sudoku/game/testutil"
 	"testing"
 )
 

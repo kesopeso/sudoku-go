@@ -1,7 +1,7 @@
 package solving
 
 import (
-	"sudoku/game"
+	"github.com/kesopeso/sudoku-go/game"
 )
 
 type IntersectionSolver struct {

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/kesopeso/sudoku-go/game"
 	"log"
-	"sudoku/game"
 )
 
 func main() {

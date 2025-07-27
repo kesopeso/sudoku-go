@@ -1,7 +1,7 @@
 package testutil
 
 import (
-	"sudoku/game"
+	"github.com/kesopeso/sudoku-go/game"
 	"testing"
 )
 
@@ -13,3 +13,4 @@ func InitSudoku(t *testing.T, fields [][]int) *game.Sudoku {
 	}
 	return sudoku
 }
+
