@@ -3,21 +3,18 @@ package game_test
 import (
 	"reflect"
 	"sudoku/game"
+	"sudoku/game/testutil"
 	"testing"
 )
 
 func TestCurrentSolutionRetrieval(t *testing.T) {
 	t.Run("return current solution", func(t *testing.T) {
-		fields := [][]int{
+		sudoku := testutil.InitSudoku(t, [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
-			{2, 3},
-			{},
-		}
-		sudoku, err := game.NewSudoku(fields)
-		if err != nil {
-			t.Fatalf("error should not occur: %v", err)
-		}
+			{2, 3, 0, 0},
+			{0, 0, 0, 0},
+		})
 
 		got := sudoku.GetCurrentSolution()
 		want := [][]int{
@@ -41,7 +38,7 @@ func TestFieldValidation(t *testing.T) {
 			{0, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		fieldValidationErrorHelper(t, fields, "too many elements in a row, found: 5, max: 4")
+		fieldValidationErrorHelper(t, fields, "too few/many elements in a row, found: 5, expected: 4")
 	})
 
 	t.Run("incorrect number of rows defined", func(t *testing.T) {
@@ -67,7 +64,7 @@ func TestFieldValidation(t *testing.T) {
 		fields := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
-			{0, 0},
+			{0, 0, 0, 0},
 			{0, 0, 3, 0},
 		}
 		fieldValidationErrorHelper(t, fields, "column has repeating numbers")
@@ -77,20 +74,20 @@ func TestFieldValidation(t *testing.T) {
 		fields := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
-			{2, 3},
-			{},
+			{2, 3, 0, 0},
+			{0, 0, 0, 0},
 		}
-		fieldValidationNoErrorHelper(t, fields)
+		testutil.InitSudoku(t, fields)
 	})
 
 	t.Run("no repeating numbers in a column, ignore zeros", func(t *testing.T) {
 		fields := [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
-			{3, 0},
-			{},
+			{3, 0, 0, 0},
+			{0, 0, 0, 0},
 		}
-		fieldValidationNoErrorHelper(t, fields)
+		testutil.InitSudoku(t, fields)
 	})
 }
 
@@ -99,14 +96,5 @@ func fieldValidationErrorHelper(t *testing.T, fields [][]int, expectedError stri
 	_, error := game.NewSudoku(fields)
 	if error == nil || error.Error() != expectedError {
 		t.Fatalf("no error or bad error returned: %v", error)
-	}
-}
-
-func fieldValidationNoErrorHelper(t *testing.T, fields [][]int) {
-	t.Helper()
-	_, error := game.NewSudoku(fields)
-
-	if error != nil {
-		t.Fatalf("no error expected: %v", error)
 	}
 }

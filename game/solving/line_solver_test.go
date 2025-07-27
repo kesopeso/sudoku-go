@@ -2,14 +2,14 @@ package solving_test
 
 import (
 	"reflect"
-	"sudoku/game"
 	"sudoku/game/solving"
+	"sudoku/game/testutil"
 	"testing"
 )
 
 func TestSolveCellWithRowSolver(t *testing.T) {
 	t.Run("solve cell within row", func(t *testing.T) {
-		fields := [][]int{
+		sudoku := testutil.InitSudoku(t, [][]int{
 			{0, 4, 3, 0, 0, 0, 0, 0, 8},
 			{0, 0, 7, 8, 5, 1, 9, 0, 3},
 			{0, 0, 8, 4, 0, 0, 0, 0, 2},
@@ -19,11 +19,7 @@ func TestSolveCellWithRowSolver(t *testing.T) {
 			{0, 0, 0, 0, 6, 0, 7, 2, 0},
 			{0, 5, 2, 1, 9, 0, 3, 0, 0},
 			{0, 8, 6, 0, 4, 0, 0, 1, 9},
-		}
-		sudoku, err := game.NewSudoku(fields)
-		if err != nil {
-			t.Fatalf("error occured: %v", err)
-		}
+		})
 
 		rowSolver := solving.NewRowSolver()
 		got := rowSolver.SolveCell(sudoku, 2, 4)
@@ -42,7 +38,7 @@ func TestSolveCellWithRowSolver(t *testing.T) {
 
 func TestSolveCellWithColumnSolver(t *testing.T) {
 	t.Run("solve cell within column", func(t *testing.T) {
-		fields := [][]int{
+		sudoku := testutil.InitSudoku(t, [][]int{
 			{0, 4, 3, 0, 0, 0, 0, 0, 8},
 			{0, 0, 7, 8, 5, 1, 9, 0, 3},
 			{0, 0, 8, 4, 0, 0, 0, 0, 2},
@@ -52,11 +48,7 @@ func TestSolveCellWithColumnSolver(t *testing.T) {
 			{0, 0, 0, 0, 6, 0, 7, 2, 0},
 			{0, 5, 2, 1, 9, 0, 3, 0, 0},
 			{0, 8, 6, 0, 4, 0, 0, 1, 9},
-		}
-		sudoku, err := game.NewSudoku(fields)
-		if err != nil {
-			t.Fatalf("error occured: %v", err)
-		}
+		})
 
 		columnSolver := solving.NewColumnSolver()
 		got := columnSolver.SolveCell(sudoku, 1, 5)

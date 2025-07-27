@@ -99,16 +99,16 @@ func validateInitalFields(fields [][]int) error {
 	}
 
 	// validate repeating column numbers
-	columnNumbers := map[int]map[int]bool{}
+	columnNumbers := make(map[int]map[int]bool, tableSize)
 	var rowNumbers map[int]bool
 
 	for _, rV := range fields {
 		// validate repeating row numbers
-		rowNumbers = map[int]bool{}
+		rowNumbers = make(map[int]bool, tableSize)
 
 		// validate row length
-		if len(rV) > tableSize {
-			return fmt.Errorf("too many elements in a row, found: %v, max: %v", len(rV), tableSize)
+		if len(rV) != tableSize {
+			return fmt.Errorf("too few/many elements in a row, found: %v, expected: %v", len(rV), tableSize)
 		}
 		for cI, cV := range rV {
 			// check if row number exists
@@ -121,7 +121,7 @@ func validateInitalFields(fields [][]int) error {
 
 			// check if column number exists
 			if _, ok := columnNumbers[cI]; !ok {
-				columnNumbers[cI] = map[int]bool{}
+				columnNumbers[cI] = make(map[int]bool, tableSize)
 			}
 			if columnNumbers[cI][cV] {
 				return fmt.Errorf("column has repeating numbers")
