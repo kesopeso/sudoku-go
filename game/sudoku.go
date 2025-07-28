@@ -6,7 +6,7 @@ import (
 )
 
 type Sudoku struct {
-	state [][][]int
+	state *State
 }
 
 func NewSudoku(cells [][]int) (*Sudoku, error) {
@@ -18,7 +18,7 @@ func NewSudoku(cells [][]int) (*Sudoku, error) {
 }
 
 func (s *Sudoku) GetSize() int {
-	return len(s.state)
+	return s.state.size
 }
 
 func (s *Sudoku) GetSquareSize() int {
@@ -27,27 +27,15 @@ func (s *Sudoku) GetSquareSize() int {
 	return int(squareSize)
 }
 
-func (s *Sudoku) IsSolved() bool {
-	for _, r := range s.state {
-		for _, c := range r {
-			if len(c) > 1 {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
 func (s *Sudoku) GetCurrentSolution() [][]int {
-	currentSolution := make([][]int, len(s.state))
+	currentSolution := make([][]int, s.state.size)
 
-	for i, row := range s.state {
-		currentSolution[i] = make([]int, len(row))
-		for j, v := range row {
-			if len(v) == 1 {
-				currentSolution[i][j] = v[0]
-				continue
+	for r := range s.state.size {
+		currentSolution[r] = make([]int, s.state.size)
+		for c := range s.state.size {
+			cellSolutions := s.state.GetCell(NewPosition(r, c))
+			if len(cellSolutions) == 1 {
+				currentSolution[r][c] = cellSolutions[0]
 			}
 		}
 	}
@@ -56,7 +44,7 @@ func (s *Sudoku) GetCurrentSolution() [][]int {
 }
 
 func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, solution int, isSolved bool) {
-	potentialSolutions = s.state[row][column]
+	potentialSolutions = s.state.GetCell(NewPosition(row, column))
 	if len(potentialSolutions) == 1 {
 		solution = potentialSolutions[0]
 	}
@@ -64,7 +52,7 @@ func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, so
 	return
 }
 
-func initState(cells [][]int) [][][]int {
+func initState(cells [][]int) *State {
 	tableSize := len(cells)
 	stateTable := make([][][]int, tableSize)
 
@@ -87,7 +75,7 @@ func initState(cells [][]int) [][][]int {
 		}
 	}
 
-	return stateTable
+	return NewState(stateTable)
 }
 
 func validateInitalCells(cells [][]int) error {

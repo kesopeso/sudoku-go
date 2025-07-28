@@ -12,6 +12,13 @@ type CellPosition struct {
 	Column int
 }
 
+func NewCellPosition(row int, column int) CellPosition {
+	return CellPosition{
+		Row:    row,
+		Column: column,
+	}
+}
+
 func NewIntersectionSolver() *IntersectionSolver {
 	return &IntersectionSolver{}
 }
