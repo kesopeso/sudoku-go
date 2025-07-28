@@ -16,13 +16,6 @@ type Position struct {
 	Column int
 }
 
-type SquareBoundries struct {
-	StartRow    int
-	EndRow      int
-	StartColumn int
-	EndColumn   int
-}
-
 func NewState(cells [][][]int) *State {
 	stateCells := make(map[int]map[int][]int, len(cells))
 	for r := range cells {
@@ -60,33 +53,6 @@ func NewPosition(row int, column int) Position {
 	}
 }
 
-func NewSquareBoundries(startRow int, endRow int, startColumn int, endColumn int) SquareBoundries {
-	return SquareBoundries{
-		StartRow:    startRow,
-		EndRow:      endRow,
-		StartColumn: startColumn,
-		EndColumn:   endColumn,
-	}
-}
-
-// func GetSquareValues(state *State, boundries SquareBoundries, excludeCell Position) (solvedValues map[int]bool, unsolvedValues map[int]bool, err error) {
-// 	solvedValues = make(map[int]bool, state.size)
-// 	unsolvedValues = make(map[int]bool, state.size)
-//
-// 	for r := boundries.StartRow; r <= boundries.EndRow; r++ {
-// 		for c := boundries.StartColumn; c <= boundries.EndColumn; c++ {
-// 			if r == excludeCell.Row && c == excludeCell.Column {
-// 				continue
-// 			}
-// 			solutions, err := state.GetCell(NewPosition(r, c))
-// 			if err != nil {
-// 				return nil, nil, err
-// 			}
-// 			fillValues(solutions, solvedValues, unsolvedValues)
-// 		}
-// 	}
-// 	return
-// }
 //
 // func GetCrossValues(state *State, excludeCell Position) (solvedValues map[int]bool, unsolvedValues map[int]bool, err error) {
 // 	solvedValues = make(map[int]bool, state.size)
