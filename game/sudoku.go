@@ -137,7 +137,7 @@ func (s *Sudoku) solveCellStateChanges(unsolvedCells []Position) <-chan CellSolu
 
 func (s *Sudoku) getCellStateChanges(changesCh <-chan CellSolution) []CellSolution {
 	changes := []CellSolution{}
-	for range len(changesCh) {
+	for range cap(changesCh) {
 		newCellSolution := <-changesCh
 		currentCellSolution := s.state.GetCell(newCellSolution.Cell)
 		util.Assert(
