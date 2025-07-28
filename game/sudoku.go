@@ -3,10 +3,41 @@ package game
 import (
 	"fmt"
 	"math"
+
+	"github.com/kesopeso/sudoku-go/util"
 )
 
 type Sudoku struct {
-	state *State
+	state   *State
+	solvers []Solver
+}
+
+type Solver interface {
+	GetSolutions(cell Position) []int
+}
+
+type CellSolution struct {
+	Cell      Position
+	Solutions []int
+}
+
+type SolutionHistory struct {
+	CurrentSolution [][]int
+	Changes         []CellSolution
+}
+
+func NewCellSolution(cell Position, solutions []int) CellSolution {
+	return CellSolution{
+		Cell:      cell,
+		Solutions: solutions,
+	}
+}
+
+func NewSolutionHistory(currentSolution [][]int, changes []CellSolution) SolutionHistory {
+	return SolutionHistory{
+		CurrentSolution: currentSolution,
+		Changes:         changes,
+	}
 }
 
 func NewSudoku(cells [][]int) (*Sudoku, error) {
@@ -14,7 +45,13 @@ func NewSudoku(cells [][]int) (*Sudoku, error) {
 		return nil, error
 	}
 	state := initState(cells)
-	return &Sudoku{state: state}, nil
+
+	solvers := []Solver{
+		NewCrossSolver(state),
+		NewSquareSolver(state),
+	}
+
+	return &Sudoku{state: state, solvers: solvers}, nil
 }
 
 func (s *Sudoku) GetCurrentSolution() [][]int {
@@ -33,6 +70,67 @@ func (s *Sudoku) GetCurrentSolution() [][]int {
 	return currentSolution
 }
 
+func (s *Sudoku) Solve() []SolutionHistory {
+	solutionHistory := []SolutionHistory{
+		NewSolutionHistory(s.GetCurrentSolution(), []CellSolution{}),
+	}
+
+	for {
+		unsolvedCells := s.getUnsolvedCells()
+
+		unsolvedCellsCount := len(unsolvedCells)
+		if unsolvedCellsCount == 0 {
+			fmt.Println("sudoku solved!")
+			break
+		}
+
+		changesCh := make(chan CellSolution, unsolvedCellsCount)
+
+		for _, uc := range unsolvedCells {
+			go (func(unsolvedCell Position) {
+				newSolutions := [][]int{}
+				for _, solver := range s.solvers {
+					newSolutions = append(newSolutions, solver.GetSolutions(unsolvedCell))
+				}
+				newSolutionsIntersection := util.ArraysIntersection(newSolutions...)
+				changesCh <- NewCellSolution(unsolvedCell, newSolutionsIntersection)
+			})(uc)
+		}
+
+		changes := []CellSolution{}
+		for range unsolvedCellsCount {
+			newCellSolution := <-changesCh
+			currentCellSolution := s.state.GetCell(newCellSolution.Cell)
+			util.Assert(
+				len(newCellSolution.Solutions) <= len(currentCellSolution),
+				fmt.Sprintf(
+					"new cell solution has more entries than the current one, new: %v, current: %v",
+					newCellSolution.Solutions,
+					currentCellSolution,
+				),
+			)
+
+			if len(newCellSolution.Solutions) < len(currentCellSolution) {
+				changes = append(changes, newCellSolution)
+			}
+		}
+
+		// no solutions found... we need to break
+		if len(changes) == 0 {
+			fmt.Println("no more solutions found, breaking out")
+			break
+		}
+
+		for _, cs := range changes {
+			s.state.SetCell(cs.Cell, cs.Solutions)
+		}
+		currentSolution := s.GetCurrentSolution()
+		solutionHistory = append(solutionHistory, NewSolutionHistory(currentSolution, changes))
+	}
+
+	return solutionHistory
+}
+
 func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, solution int, isSolved bool) {
 	potentialSolutions = s.state.GetCell(NewPosition(row, column))
 	if len(potentialSolutions) == 1 {
@@ -42,8 +140,18 @@ func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, so
 	return
 }
 
-func (s *Sudoku) GetSize() int {
-	return s.state.size
+func (s *Sudoku) getUnsolvedCells() []Position {
+	unsolvedCells := make([]Position, 0, s.state.size*s.state.size)
+	for r := range s.state.size {
+		for c := range s.state.size {
+			cellPosition := NewPosition(r, c)
+			cellSolution := s.state.GetCell(cellPosition)
+			if len(cellSolution) > 1 {
+				unsolvedCells = append(unsolvedCells, cellPosition)
+			}
+		}
+	}
+	return unsolvedCells
 }
 
 func initState(cells [][]int) *State {

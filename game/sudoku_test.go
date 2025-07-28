@@ -90,6 +90,32 @@ func TestCellValidation(t *testing.T) {
 	})
 }
 
+func TestSolving(t *testing.T) {
+	t.Run("return history with single (intial) entry when no possible solutions exist", func(t *testing.T) {
+		cells := [][]int{
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+			{0, 0, 0, 0, 0, 0, 0, 0, 0},
+		}
+		sudoku := initSudoku(t, cells)
+		solutionHistory := sudoku.Solve()
+
+		if len(solutionHistory) != 1 {
+			t.Fatal("solution history does not have a single entry")
+		}
+
+		if len(solutionHistory[0].Changes) != 0 {
+			t.Fatal("changes should be empty")
+		}
+	})
+}
+
 func cellValidationErrorHelper(t *testing.T, cells [][]int, expectedError string) {
 	t.Helper()
 	_, error := game.NewSudoku(cells)
