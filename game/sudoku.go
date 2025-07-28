@@ -17,16 +17,6 @@ func NewSudoku(cells [][]int) (*Sudoku, error) {
 	return &Sudoku{state: state}, nil
 }
 
-func (s *Sudoku) GetSize() int {
-	return s.state.size
-}
-
-func (s *Sudoku) GetSquareSize() int {
-	sudokuSize := s.GetSize()
-	squareSize := math.Sqrt(float64(sudokuSize))
-	return int(squareSize)
-}
-
 func (s *Sudoku) GetCurrentSolution() [][]int {
 	currentSolution := make([][]int, s.state.size)
 
@@ -50,6 +40,10 @@ func (s *Sudoku) GetCellState(row int, column int) (potentialSolutions []int, so
 	}
 	isSolved = solution != 0
 	return
+}
+
+func (s *Sudoku) GetSize() int {
+	return s.state.size
 }
 
 func initState(cells [][]int) *State {

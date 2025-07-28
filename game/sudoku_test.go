@@ -2,14 +2,13 @@ package game_test
 
 import (
 	"github.com/kesopeso/sudoku-go/game"
-	"github.com/kesopeso/sudoku-go/game/testutil"
 	"reflect"
 	"testing"
 )
 
 func TestCurrentSolutionRetrieval(t *testing.T) {
 	t.Run("return current solution", func(t *testing.T) {
-		sudoku := testutil.InitSudoku(t, [][]int{
+		sudoku := initSudoku(t, [][]int{
 			{1, 2, 3, 4},
 			{0, 0, 0, 0},
 			{2, 3, 0, 0},
@@ -77,7 +76,7 @@ func TestCellValidation(t *testing.T) {
 			{2, 3, 0, 0},
 			{0, 0, 0, 0},
 		}
-		testutil.InitSudoku(t, cells)
+		initSudoku(t, cells)
 	})
 
 	t.Run("no repeating numbers in a column, ignore zeros", func(t *testing.T) {
@@ -87,7 +86,7 @@ func TestCellValidation(t *testing.T) {
 			{3, 0, 0, 0},
 			{0, 0, 0, 0},
 		}
-		testutil.InitSudoku(t, cells)
+		initSudoku(t, cells)
 	})
 }
 
@@ -97,4 +96,13 @@ func cellValidationErrorHelper(t *testing.T, cells [][]int, expectedError string
 	if error == nil || error.Error() != expectedError {
 		t.Fatalf("no error or bad error returned: %v", error)
 	}
+}
+
+func initSudoku(t *testing.T, cells [][]int) *game.Sudoku {
+	t.Helper()
+	sudoku, err := game.NewSudoku(cells)
+	if err != nil {
+		t.Fatalf("error occured: %v", err)
+	}
+	return sudoku
 }

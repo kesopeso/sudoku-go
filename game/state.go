@@ -19,10 +19,8 @@ type Position struct {
 func NewState(cells [][][]int) *State {
 	stateCells := make(map[int]map[int][]int, len(cells))
 	for r := range cells {
+		stateCells[r] = make(map[int][]int, len(cells))
 		for c := range cells[r] {
-			if stateCells[r] == nil {
-				stateCells[r] = make(map[int][]int, len(cells))
-			}
 			stateCells[r][c] = cells[r][c]
 		}
 	}
