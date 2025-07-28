@@ -8,7 +8,7 @@ import (
 )
 
 func TestSquareSolver(t *testing.T) {
-	t.Run("get new potential solutions", func(t *testing.T) {
+	t.Run("calculate new square solutions", func(t *testing.T) {
 		cells := [][][]int{
 			{
 				{1},
