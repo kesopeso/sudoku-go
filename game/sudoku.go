@@ -77,53 +77,17 @@ func (s *Sudoku) Solve() []SolutionHistory {
 
 	for {
 		unsolvedCells := s.getUnsolvedCells()
-
-		unsolvedCellsCount := len(unsolvedCells)
-		if unsolvedCellsCount == 0 {
-			fmt.Println("sudoku solved!")
-			break
+		if len(unsolvedCells) == 0 {
+			break // game is solved, break out of the loop
 		}
 
-		changesCh := make(chan CellSolution, unsolvedCellsCount)
-
-		for _, uc := range unsolvedCells {
-			go (func(unsolvedCell Position) {
-				newSolutions := [][]int{}
-				for _, solver := range s.solvers {
-					newSolutions = append(newSolutions, solver.GetSolutions(unsolvedCell))
-				}
-				newSolutionsIntersection := util.ArraysIntersection(newSolutions...)
-				changesCh <- NewCellSolution(unsolvedCell, newSolutionsIntersection)
-			})(uc)
-		}
-
-		changes := []CellSolution{}
-		for range unsolvedCellsCount {
-			newCellSolution := <-changesCh
-			currentCellSolution := s.state.GetCell(newCellSolution.Cell)
-			util.Assert(
-				len(newCellSolution.Solutions) <= len(currentCellSolution),
-				fmt.Sprintf(
-					"new cell solution has more entries than the current one, new: %v, current: %v",
-					newCellSolution.Solutions,
-					currentCellSolution,
-				),
-			)
-
-			if len(newCellSolution.Solutions) < len(currentCellSolution) {
-				changes = append(changes, newCellSolution)
-			}
-		}
-
-		// no solutions found... we need to break
+		changesCh := s.solveCellStateChanges(unsolvedCells)
+		changes := s.getCellStateChanges(changesCh)
 		if len(changes) == 0 {
-			fmt.Println("no more solutions found, breaking out")
-			break
+			break // no solutions found... we need to break
 		}
 
-		for _, cs := range changes {
-			s.state.SetCell(cs.Cell, cs.Solutions)
-		}
+		s.updateState(changes)
 		currentSolution := s.GetCurrentSolution()
 		solutionHistory = append(solutionHistory, NewSolutionHistory(currentSolution, changes))
 	}
@@ -152,6 +116,50 @@ func (s *Sudoku) getUnsolvedCells() []Position {
 		}
 	}
 	return unsolvedCells
+}
+
+func (s *Sudoku) solveCellStateChanges(unsolvedCells []Position) <-chan CellSolution {
+	changesCh := make(chan CellSolution, len(unsolvedCells))
+
+	for _, uc := range unsolvedCells {
+		go (func(unsolvedCell Position) {
+			newSolutions := [][]int{}
+			for _, solver := range s.solvers {
+				newSolutions = append(newSolutions, solver.GetSolutions(unsolvedCell))
+			}
+			newSolutionsIntersection := util.ArraysIntersection(newSolutions...)
+			changesCh <- NewCellSolution(unsolvedCell, newSolutionsIntersection)
+		})(uc)
+	}
+
+	return changesCh
+}
+
+func (s *Sudoku) getCellStateChanges(changesCh <-chan CellSolution) []CellSolution {
+	changes := []CellSolution{}
+	for range len(changesCh) {
+		newCellSolution := <-changesCh
+		currentCellSolution := s.state.GetCell(newCellSolution.Cell)
+		util.Assert(
+			len(newCellSolution.Solutions) <= len(currentCellSolution),
+			fmt.Sprintf(
+				"new cell solution has more entries than the current one, new: %v, current: %v",
+				newCellSolution.Solutions,
+				currentCellSolution,
+			),
+		)
+
+		if len(newCellSolution.Solutions) < len(currentCellSolution) {
+			changes = append(changes, newCellSolution)
+		}
+	}
+	return changes
+}
+
+func (s *Sudoku) updateState(changes []CellSolution) {
+	for _, cs := range changes {
+		s.state.SetCell(cs.Cell, cs.Solutions)
+	}
 }
 
 func initState(cells [][]int) *State {
