@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"math"
+	"sync"
 
 	"github.com/kesopeso/sudoku-go/util"
 )
@@ -119,10 +120,13 @@ func (s *Sudoku) getUnsolvedCells() []Position {
 }
 
 func (s *Sudoku) solveCellStateChanges(unsolvedCells []Position) <-chan CellSolution {
+	var wg sync.WaitGroup
 	changesCh := make(chan CellSolution, len(unsolvedCells))
 
 	for _, uc := range unsolvedCells {
+		wg.Add(1)
 		go (func(unsolvedCell Position) {
+			defer wg.Done()
 			newSolutions := [][]int{}
 			for _, solver := range s.solvers {
 				newSolutions = append(newSolutions, solver.GetSolutions(unsolvedCell))
@@ -132,13 +136,17 @@ func (s *Sudoku) solveCellStateChanges(unsolvedCells []Position) <-chan CellSolu
 		})(uc)
 	}
 
+	go (func() {
+		wg.Wait()
+		close(changesCh)
+	})()
+
 	return changesCh
 }
 
 func (s *Sudoku) getCellStateChanges(changesCh <-chan CellSolution) []CellSolution {
 	changes := []CellSolution{}
-	for range cap(changesCh) {
-		newCellSolution := <-changesCh
+	for newCellSolution := range changesCh {
 		currentCellSolution := s.state.GetCell(newCellSolution.Cell)
 		util.Assert(
 			len(newCellSolution.Solutions) <= len(currentCellSolution),
